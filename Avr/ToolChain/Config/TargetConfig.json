@@ -1,0 +1,7 @@
+{
+	"device": "m328p", 
+	"target": "atmega328", 
+	"programmer": "arduino", 
+	"port": "com5"
+}
+
