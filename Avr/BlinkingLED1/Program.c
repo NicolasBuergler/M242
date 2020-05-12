@@ -9,14 +9,16 @@
 int main(void)
 {
 	Usart_Init(250000);
+	Bool ledOn = False;
 	//Setzt die Datenflussrichtung vom Pin 5 vom Port B auf Output 
-	SetRegister(PortB.DDR, (PIN5, DdrOutput));
+	SetRegister(PortB.DDR, (PIN5, DdrInput), PortB.DDR, (PIN4, DdrOutput), PortB.DDR, (PIN3, DdrOutput));
+	SetRegister(PortB.PORT, (PIN3, ledOn), (PIN4, 0));
+
 
 	while (True)
 	{
-		//LED einschalten
-		_delay_ms(1000);
-		//LED Ausschalten
+		ledOn = !ledOn;
+		UpdateRegister(PortB.PORT, (PIN3, ledOn));
 		_delay_ms(1000);
 	}
 
