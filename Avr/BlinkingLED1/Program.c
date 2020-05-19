@@ -11,7 +11,7 @@ int main(void)
 	Usart_Init(250000);
 	Bool ledOn = False;
 	//Setzt die Datenflussrichtung vom Pin 5 vom Port B auf Output 
-	SetRegister(PortB.DDR, (PIN_5, DdrInput), (PIN_4, DdrOutput), (PIN_3, DdrOutput));
+	SetRegister(PortB.DDR, (PIN_5, DdrInput), (PIN_4, DdrOutput), (PIN_3, DdrInput));
 	SetRegister(PortB.PORT, (PIN_3, ledOn), (PIN_4, 0));
 
 
