@@ -10,6 +10,85 @@
 #include <avr/sfr_defs.h>
 #include <avr/common.h>
 #include <inttypes.h>
+#include <avr/interrupt.h>
+
+/**
+* macros to define interrupt service routines
+*/
+#define ISR_ExtInt0()	 ISR( __vector_1 )
+#define ISR_ExtInt1()	 ISR( __vector_2 )
+#define ISR_PinChange0()	 ISR( __vector_3 )
+#define ISR_PinChange1()	 ISR( __vector_4 )
+#define ISR_PinChange2()	 ISR( __vector_5 )
+#define ISR_Whatchdog()	 ISR( __vector_6 )
+#define ISR_Tcnt2CompareMatchA()	 ISR( __vector_7 )
+#define ISR_Tcnt2CompareMatchB()	 ISR( __vector_8 )
+#define ISR_Tcnt2Overflow()	 ISR( __vector_9 )
+#define ISR_Tcnt1Capture()	 ISR( __vector_10 )
+#define ISR_Tcnt1CompareMatchA()	 ISR( __vector_11 )
+#define ISR_Tcnt1CompareMatchB()	 ISR( __vector_12 )
+#define ISR_Tcnt1Overflow()	 ISR( __vector_13 )
+#define ISR_Tcnt0CompareMatchA()	 ISR( __vector_14 )
+#define ISR_Tcnt0CompareMatchB()	 ISR( __vector_15 )
+#define ISR_Tcnt0Overflow()	 ISR( __vector_16 )
+#define ISR_SpiTxComplete()	 ISR( __vector_17 )
+#define ISR_UsartRxComplete()	 ISR( __vector_18 )
+#define ISR_UsartDataRegEmpty()	 ISR( __vector_19 )
+#define ISR_UsartTxComplete()	 ISR( __vector_20 )
+#define ISR_AdcComplete()	 ISR( __vector_21 )
+#define ISR_EepromReady()	 ISR( __vector_22 )
+#define ISR_AnalogComperator()	 ISR( __vector_23 )
+#define ISR_TwiInt()	 ISR( __vector_24 )
+#define ISR_SpmReadyInt()	 ISR( __vector_25 )
+
+/**
+* bitfield PRADC
+*/
+#define PRR_PRADC_mask 0x01
+#define PRR_PRADC_pos 0
+#define PRR_PRADC_width 1
+
+/**
+* bitfield PRUSAR
+*/
+#define PRR_PRUSAR_mask 0x02
+#define PRR_PRUSAR_pos 1
+#define PRR_PRUSAR_width 1
+
+/**
+* bitfield PRSPI
+*/
+#define PRR_PRSPI_mask 0x04
+#define PRR_PRSPI_pos 2
+#define PRR_PRSPI_width 1
+
+/**
+* bitfield PRTIM1
+*/
+#define PRR_PRTIM1_mask 0x08
+#define PRR_PRTIM1_pos 3
+#define PRR_PRTIM1_width 1
+
+/**
+* bitfield PRTIM0
+*/
+#define PRR_PRTIM0_mask 0x20
+#define PRR_PRTIM0_pos 5
+#define PRR_PRTIM0_width 1
+
+/**
+* bitfield PRTIM2
+*/
+#define PRR_PRTIM2_mask 0x40
+#define PRR_PRTIM2_pos 6
+#define PRR_PRTIM2_width 1
+
+/**
+* bitfield PRTWI
+*/
+#define PRR_PRTWI_mask 0x80
+#define PRR_PRTWI_pos 7
+#define PRR_PRTWI_width 1
 
 /**
 * bitfield SE
@@ -70,11 +149,17 @@ typedef enum
 #define MCUCR_BODS_pos 6
 #define MCUCR_BODS_width 1
 
+
+/**
+* General purpose IO
+*       \sa{http://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf#G1182930}
+*     
+*/
 typedef struct GPIO_T_tag
 {
-    volatile uint8_t PIN;
-    volatile uint8_t DDR;
-    volatile uint8_t PORT;
+    volatile uint8_t PIN;	///< Port input data
+    volatile uint8_t DDR;	///< Data direction register
+    volatile uint8_t PORT;	///< Data (output) or pull up (input)
 } GPIO_T;
 /**
 * bitfield 0
@@ -132,19 +217,29 @@ typedef struct GPIO_T_tag
 #define PIN_7_pos 7
 #define PIN_7_width 1
 
+
+/**
+* Direktion of a digital IO
+*/
 typedef enum
 {
     DdrInput=0,
     DdrOutput=1,
 } DataDirection_T;
 
+
+/**
+* 8 bit timer counter with PWM
+*       \sa{http://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf#G1185112}
+*     
+*/
 typedef struct TCNT8_T_tag
 {
-    volatile uint8_t TCCRA;
-    volatile uint8_t TCCRB;
-    volatile uint8_t TCNT;
-    volatile uint8_t OCRA;
-    volatile uint8_t OCRB;
+    volatile uint8_t TCCRA;	///< Configuration register 1; Operation mode
+    volatile uint8_t TCCRB;	///<  Configuration Register 2; Operation mode and counting speed
+    volatile uint8_t TCNT;	///< Actual counter value
+    volatile uint8_t OCRA;	///< Compare value A
+    volatile uint8_t OCRB;	///< Compare value B
 } TCNT8_T;
 /**
 * bitfield WGM
@@ -167,6 +262,15 @@ typedef struct TCNT8_T_tag
 #define TCCRA_COMA_pos 6
 #define TCCRA_COMA_width 2
 
+
+/**
+* Waveform generation mode:
+*             0 = Normal mode operation 
+*             1 = PWM, normal mode
+*             2 = CTC (clear timer on compare match)
+*             3 = Fast PWM
+*           
+*/
 typedef enum
 {
     Normal=0,
@@ -210,6 +314,11 @@ typedef enum
 #define TCCRB_FOCA_pos 7
 #define TCCRB_FOCA_width 1
 
+
+/**
+* This enumerate defines the values for 8bit and 16 bit timer counter blocks
+*           
+*/
 typedef enum
 {
     CS_Off=0,
@@ -227,16 +336,22 @@ typedef enum
     CsT2_Div1024=7,
 } ClkSelect;
 
+
+/**
+* 
+*       16 bit timer counter with PWM and capture
+*       \sa{http://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf#G1187569}
+*/
 typedef struct TCNT16_T_tag
 {
-    volatile uint8_t TCCRA;
-    volatile int8_t TCCRB;
-    volatile uint8_t TCCRC;
-    volatile uint8_t Reserved;
-    volatile uint16_t TCNT;
-    volatile uint16_t ICR;
-    volatile uint16_t OCRA;
-    volatile uint16_t ORCB;
+    volatile uint8_t TCCRA;	///< Timer configuration register A
+    volatile int8_t TCCRB;	
+    volatile uint8_t TCCRC;	
+    volatile uint8_t Reserved;	
+    volatile uint16_t TCNT;	///< Counter register
+    volatile uint16_t ICR;	///< Input capture register
+    volatile uint16_t OCRA;	///< Output compare register A
+    volatile uint16_t ORCB;	///< Output compare register B
 } TCNT16_T;
 /**
 * bitfield WGM
@@ -331,12 +446,12 @@ typedef struct TCNT16_T_tag
 
 typedef struct USART_T_tag
 {
-    volatile uint8_t UCSRA;
-    volatile uint8_t UCSRB;
-    volatile uint8_t UCSRC;
-    volatile uint8_t Reserved;
-    volatile uint16_t UBBR;
-    volatile uint8_t UDR;
+    volatile uint8_t UCSRA;	
+    volatile uint8_t UCSRB;	
+    volatile uint8_t UCSRC;	
+    volatile uint8_t Reserved;	
+    volatile uint16_t UBBR;	
+    volatile uint8_t UDR;	///< Data input output register
 } USART_T;
 /**
 * bitfield RXC
@@ -506,15 +621,22 @@ typedef enum
 #define UBBR_UBRR_pos 0
 #define UBBR_UBRR_width 12
 
+
+/**
+* 
+*       Analog digital converter
+*       \see{http://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf#G1202563}
+*     
+*/
 typedef struct ADC_T_tag
 {
-    volatile uint16_t Data;
-    volatile uint8_t Adcsra;
-    volatile uint8_t Adcsrb;
-    volatile uint8_t Admux;
-    volatile uint8_t Reserved;
-    volatile uint8_t Didr0;
-    volatile uint8_t Didr1;
+    volatile uint16_t Data;	///< 10 bit data value of the conversion result
+    volatile uint8_t Adcsra;	///< Adc status register A
+    volatile uint8_t Adcsrb;	///< Adc status register B
+    volatile uint8_t Admux;	
+    volatile uint8_t Reserved;	
+    volatile uint8_t Didr0;	
+    volatile uint8_t Didr1;	
 } ADC_T;
 /**
 * bitfield ADPS
@@ -652,6 +774,13 @@ typedef enum
     MuxGnd=15,
 } AnalogChannelSelection;
 
+typedef enum
+{
+    ExternalAREF=0,
+    InternalVCC=1,
+    Internal1_1=3,
+} ReferenceSelection;
+
 /**
 * bitfield ADC0D
 */
@@ -752,6 +881,7 @@ typedef enum
 #define Tcnt0 (*((volatile TCNT8_T*)0x00000044))
 #define Smcr (*((volatile uint8_t*)0x00000053))
 #define Mcucr (*((volatile uint8_t*)0x00000055))
+#define Prr (*((volatile uint8_t*)0x00000064))
 #define Timsk0 (*((volatile uint8_t*)0x0000006E))
 #define Timsk1 (*((volatile uint8_t*)0x0000006F))
 #define Timsk2 (*((volatile uint8_t*)0x00000070))

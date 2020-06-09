@@ -41,9 +41,9 @@ def GeneratePeripherals(xmlName, output, includes):
 
 
 if __name__ == "__main__":
-    p = pathlib.Path(__file__)
-    xmlPath = (((p.parent.parent.parent.parent / 'XmlModel') / 'HardwareDescription') / 'Avr')
+    p = pathlib.Path(__file__).resolve()
+    xmlPath = p.parent.parent / 'xml'
     xmlFile = xmlPath / 'Atmega328P.xml'
     dest = ((p.parent.parent / 'AvrLib') / 'Include') / 'Atmega328P.h'
-    includes = ['<avr/sfr_defs.h>', '<avr/common.h>', '<inttypes.h>']
+    includes = ['<avr/sfr_defs.h>', '<avr/common.h>', '<inttypes.h>', '<avr/interrupt.h>']
     GeneratePeripherals(xmlFile, dest, includes )

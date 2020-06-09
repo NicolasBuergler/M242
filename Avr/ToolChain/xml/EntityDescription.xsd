@@ -5,6 +5,7 @@
            xmlns="http://tempuri.org/EntityDescription.xsd" 
            xmlns:mstns="http://tempuri.org/EntityDescription.xsd" 
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  
   <xs:simpleType name="SupportedChipFamilies">
     <xs:restriction>
       <xs:simpleType>
@@ -12,11 +13,13 @@
       </xs:simpleType>
     </xs:restriction>
   </xs:simpleType>
+  
   <xs:simpleType name="HexInt">
     <xs:restriction base="xs:token">
       <xs:pattern value="(0x)?[0-9a-fA-F]+" />
     </xs:restriction>
   </xs:simpleType>
+  
   <xs:complexType name="ProcessingUnitType">
     <xs:sequence>
       <xs:element name="Import" minOccurs="0" maxOccurs="unbounded">
@@ -35,12 +38,23 @@
     <xs:attribute name="Name" type="xs:string" use="required" />
     <xs:attribute name="Namespace" type="xs:string" use="required" />
   </xs:complexType>
+
+  <xs:simpleType name="StereotypeType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="HardwarePeripheral"/>
+      <xs:enumeration value="HardwareRegister"/>
+      <xs:enumeration value="IsrTable"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
   <xs:complexType name="TypeDescriptionType">
     <xs:sequence>
       <xs:element name="Description" type="xs:string" minOccurs="0" />
+      <xs:element name="Stereotype" type ="StereotypeType" minOccurs="0"/>
     </xs:sequence>
     <xs:attribute name="Name" type="xs:ID" use="required" />
   </xs:complexType>
+  
   <xs:simpleType name="AccessType">
     <xs:restriction base="xs:string">
       <xs:enumeration value="ReadOnly" />
@@ -48,6 +62,9 @@
       <xs:enumeration value="ReadWrite" />
     </xs:restriction>
   </xs:simpleType>
+  
+
+  
   <xs:complexType name="FieldDescriptionType">
     <xs:sequence>
       <xs:element name="Description" type="xs:string" minOccurs="0" />
@@ -76,6 +93,16 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
+
+  <xs:complexType name="ArrayType">
+    <xs:complexContent>
+      <xs:extension base="TypeDescriptionType">
+        <xs:attribute name="ElementType" type="xs:NCName" use="required"/>
+        <xs:attribute name="Length" type="xs:integer" use ="required"/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  
   <xs:complexType name="IntegerType">
     <xs:complexContent>
       <xs:extension base="TypeDescriptionType">
@@ -111,6 +138,7 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
+  
   <xs:complexType name="EnumType">
     <xs:complexContent>
       <xs:extension base="TypeDescriptionType">

@@ -1,9 +1,64 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Unit xmlns ="http://tempuri.org/EntityDescription.xsd"
-      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
-      xsi:schemaLocation="http://tempuri.org/EntityDescription.xsd ../../Schema/EntityDescription.xsd"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://tempuri.org/EntityDescription.xsd EntityDescription.xsd"
       Name="IntTypes" Namespace="Types">
-  <Import LibraryOrFile="../../Ctypes/IntTypes.xml" ByReference="true" />
+  <Import LibraryOrFile="IntTypes.xml" ByReference="true" />
+
+  <TypeDefinition Name="IsrDefinition_T" xsi:type="EnumType" >
+    <Stereotype>IsrTable</Stereotype>
+    <Enum Name="ISR_ExtInt0" Value="1"/>
+    <Enum Name="ISR_ExtInt1" Value="2"/>
+    <Enum Name="ISR_PinChange0" Value="3"/>
+    <Enum Name="ISR_PinChange1" Value="4"/>
+    <Enum Name="ISR_PinChange2" Value="5"/>
+    <Enum Name="ISR_Whatchdog" Value="6"/>
+    <Enum Name="ISR_Tcnt2CompareMatchA" Value="7"/>
+    <Enum Name="ISR_Tcnt2CompareMatchB" Value="8"/>
+    <Enum Name="ISR_Tcnt2Overflow" Value="9"/>
+    <Enum Name="ISR_Tcnt1Capture" Value="10"/>
+    <Enum Name="ISR_Tcnt1CompareMatchA" Value="11"/>
+    <Enum Name="ISR_Tcnt1CompareMatchB" Value="12"/>
+    <Enum Name="ISR_Tcnt1Overflow" Value="13"/>
+    <Enum Name="ISR_Tcnt0CompareMatchA" Value="14"/>
+    <Enum Name="ISR_Tcnt0CompareMatchB" Value="15"/>
+    <Enum Name="ISR_Tcnt0Overflow" Value="16"/>
+    <Enum Name="ISR_SpiTxComplete" Value="17"/>
+    <Enum Name="ISR_UsartRxComplete" Value="18"/>
+    <Enum Name="ISR_UsartDataRegEmpty" Value="19"/>
+    <Enum Name="ISR_UsartTxComplete" Value="20"/>
+    <Enum Name="ISR_AdcComplete" Value="21"/>
+    <Enum Name="ISR_EepromReady" Value="22"/>
+    <Enum Name="ISR_AnalogComperator" Value="23"/>
+    <Enum Name="ISR_TwiInt" Value="24"/>
+    <Enum Name="ISR_SpmReadyInt" Value="25"/>
+  </TypeDefinition>
+
+  <TypeDefinition Name="PRR_T" xsi:type="IntegerType" Signed="false" Size="1">
+    <Description>Power reduction regisgter descrption</Description>
+    <Stereotype>HardwareRegister</Stereotype>
+    <Bitfield Name="PRADC" Position="0" Width="1">
+      <Description>Power reduction for analog digital converter</Description>
+    </Bitfield>
+    <Bitfield Name="PRUSAR" Position="1" Width="1">
+      <Description>Power reduction for usart</Description>
+    </Bitfield>
+    <Bitfield Name="PRSPI" Position="2" Width="1">
+      <Description>Power reduction SPI</Description>
+    </Bitfield>
+    <Bitfield Name="PRTIM1" Position="3" Width="1">
+      <Description>Power reduction timer 1</Description>
+    </Bitfield>
+    <Bitfield Name="PRTIM0" Position="5" Width="1">
+      <Description>Power reduction timer 0</Description>
+    </Bitfield>
+    <Bitfield Name="PRTIM2" Position="6" Width="1">
+      <Description>Power reduction timer 2</Description>
+    </Bitfield>
+    <Bitfield Name="PRTWI" Position="7" Width="1">
+      <Description>Power reduction two wire interface</Description>
+    </Bitfield>
+  </TypeDefinition>
 
   <TypeDefinition Name="SMCR_T" xsi:type="IntegerType" Signed="false" Size="1">
     <Description>Sleep mode control register</Description>
@@ -23,7 +78,7 @@
       </ValueSet>
     </Bitfield>
   </TypeDefinition>
-  
+
   <TypeDefinition Name="MCUCR_T" xsi:type="IntegerType" Size="1" Signed="false">
     <Description>MCU control register</Description>
     <Stereotype>HardwareRegister</Stereotype>
@@ -35,14 +90,15 @@
     <Bitfield Name="BODSE" Position="5" Width="1"></Bitfield>
     <Bitfield Name="BODS" Position="6" Width="1"></Bitfield>
   </TypeDefinition>
-  
+
 
   <TypeDefinition Name ="GPIO_T" xsi:type="StructType">
-    <Description>
+    <Description>General purpose IO
+      \sa{http://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf#G1182930}
     </Description>
     <Stereotype>HardwarePeripheral</Stereotype>
     <TypeDefinition Name="PIN_T" xsi:type="IntegerType" Size="1" Signed="false">
-      <Description>Bitmaps for port pins</Description>
+      <Description>Bitmasks for port pins</Description>
       <Bitfield Name="0" Width ="1" Position ="0">
         <Default>0</Default>
       </Bitfield>
@@ -69,6 +125,7 @@
       </Bitfield>
     </TypeDefinition>
     <TypeDefinition Name="DataDirection_T" xsi:type="EnumType" Size="1">
+      <Description>Direktion of a digital IO</Description>
       <Enum Name="DdrInput" Value="0"/>
       <Enum Name="DdrOutput" Value="1"/>
     </TypeDefinition>
@@ -79,24 +136,25 @@
       <Description>Data direction register</Description>
     </Field>
     <Field Name="PORT" FieldType="PIN_T" Aligned="1">
-      <Description>Port data or pull up</Description>
+      <Description>Data (output) or pull up (input)</Description>
     </Field>
   </TypeDefinition>
-  
+
   <TypeDefinition Name="TCNT8_T" xsi:type="StructType">
-    <Description>8 bit timer counter
+    <Description>8 bit timer counter with PWM
+      \sa{http://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf#G1185112}
     </Description>
     <Stereotype>HardwarePeripheral</Stereotype>
     <TypeDefinition Name="TCCRA_T" xsi:type="IntegerType" Size="1" Signed="false">
       <Bitfield Name="WGM" Position="0" Width="2">
-        <Description>
-        Waveform generation mode:
-          0 = Normal
-          1 = PWM, normal mode
-          2 = CTC (clear timer on compare match)
-          3 = Fast PWM
-        </Description>
+
         <ValueSet Name ="WaveFormGenerationModes">
+          <Description>Waveform generation mode:
+            0 = Normal mode operation 
+            1 = PWM, normal mode
+            2 = CTC (clear timer on compare match)
+            3 = Fast PWM
+          </Description>
           <Enum Name ="Normal"  Value="0"/>
           <Enum Name ="PwmNormal" Value ="1"/>
           <Enum Name ="ClrTmrOnCmpMatch" Value ="2"/>
@@ -112,13 +170,13 @@
     </TypeDefinition>
     <TypeDefinition Name="TCCRB_T" xsi:type="IntegerType" Signed="false" Size="1">
       <Bitfield Name="CS" Position="0" Width="3">
-        <Description>
-          Clock selection; The clock selection options are slightly different for counter 1 and counter 2; The enum ClkSelect defines the values for 
-          both! The values that are applicable for both have the prefix CS_; the ones that are applicable only for one of them have the prefix 
+        <Description>Clock selection; The clock selection options are slightly different for counter 1 and counter 2; The enum ClkSelect defines the values for
+          both! The values that are applicable for both have the prefix CS_; the ones that are applicable only for one of them have the prefix
           CsT1_, CsT2_ respectiviely.
         </Description>
         <ValueSet Name="ClkSelect">
-          <Description> This enumerate defines both</Description>
+          <Description>This enumerate defines the values for 8bit and 16 bit timer counter blocks
+          </Description>
           <Enum Name ="CS_Off" Value="0"/>
           <Enum Name ="CS_Div1" Value="1"/>
           <Enum Name ="CS_Div8" Value="2"/>
@@ -134,7 +192,7 @@
           <Enum Name="CsT2_Div1024" Value="7"/>
         </ValueSet>
       </Bitfield>
-      
+
       <Bitfield Name="WGM" Position="3" Width="1">
         <Description>Select PWM mode if set to 1</Description>
       </Bitfield>
@@ -146,19 +204,32 @@
         <Description>Force output compare on OCRA; takes effect if WGM bit not set to 1</Description>
       </Bitfield>
     </TypeDefinition>
-    <Field Name="TCCRA" FieldType="TCCRA_T" Aligned="1"></Field>
-    <Field Name="TCCRB" FieldType="TCCRB_T" Aligned="1"></Field>
-    <Field Name="TCNT" FieldType="uint8_t" Aligned="1"></Field>
-    <Field Name="OCRA" FieldType="uint8_t" Aligned="1"></Field>
-    <Field Name="OCRB" FieldType="uint8_t" Aligned="1"></Field>
+    <Field Name="TCCRA" FieldType="TCCRA_T" Aligned="1">
+      <Description>Configuration register 1; Operation mode</Description>
+    </Field>
+    <Field Name="TCCRB" FieldType="TCCRB_T" Aligned="1">
+      <Description> Configuration Register 2; Operation mode and counting speed</Description>
+    </Field>
+    <Field Name="TCNT" FieldType="uint8_t" Aligned="1">
+      <Description>Actual counter value</Description>
+    </Field>
+    <Field Name="OCRA" FieldType="uint8_t" Aligned="1">
+      <Description>Compare value A</Description>
+    </Field>
+    <Field Name="OCRB" FieldType="uint8_t" Aligned="1">
+      <Description>Compare value B</Description>
+    </Field>
   </TypeDefinition>
 
 
   <TypeDefinition Name="TCNT16_T" xsi:type="StructType">
+    <Description>
+      16 bit timer counter with PWM and capture
+      \sa{http://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf#G1187569}</Description>
     <Stereotype>HardwarePeripheral</Stereotype>
     <TypeDefinition Name="TCCRA1_T" xsi:type="IntegerType" Signed="false" Size="1">
       <Bitfield Name="WGM" Position="0" Width="2">
-        <Description>Wave form generation mode; the value is combinde with the field WGM in TCCRB1_T. 
+        <Description>Wave form generation mode; the value is combinde with the field WGM in TCCRB1_T.
         The description how to usd the combinde value can be found in table 15-5 of the data sheet!
         </Description>
       </Bitfield>
@@ -173,7 +244,7 @@
         <Description>Upper bits of wave generation mode; is combined with WGM in TCCRA1 register</Description>
       </Bitfield>
       <Bitfield Name="ICES1" Position="6" Width="1">
-        <Description>Input capture edge select; 
+        <Description>Input capture edge select;
         * 1: capture on raising edge
         * 0: capture on falling edge
         </Description>
@@ -194,10 +265,10 @@
       <Description>Timer configuration register A</Description>
     </Field>
     <Field Name="TCCRB" FieldType="TCCRB1_T">
-      
+
     </Field>
     <Field Name="TCCRC" FieldType ="TCCRC1_T">
-      
+
     </Field>
     <Field Name="Reserved" FieldType="uint8_t"/>
     <Field Name="TCNT" FieldType="uint16_t">
@@ -214,7 +285,7 @@
     </Field>
   </TypeDefinition>
 
-  
+
   <TypeDefinition Name="TIFR_T" xsi:type="IntegerType" Size="1" Signed="false">
     <Description>Timer interrupt flag register</Description>
     <Stereotype>HardwareRegister</Stereotype>
@@ -341,6 +412,10 @@
 
 
   <TypeDefinition Name="ADC_T" xsi:type="StructType">
+    <Description>
+      Analog digital converter
+      \see{http://ww1.microchip.com/downloads/en/DeviceDoc/Atmel-7810-Automotive-Microcontrollers-ATmega328P_Datasheet.pdf#G1202563}
+    </Description>
     <Stereotype>HardwarePeripheral</Stereotype>
     <TypeDefinition Name="ADCSRA_T" xsi:type="IntegerType" Signed="false" Size="1">
       <Bitfield Name="ADPS" Position="0" Width="3">
@@ -392,7 +467,7 @@
         <Description>Analog comparator multiplexed input enable;
         For a full description see table 22-1 ind the Atmega328p datasheet</Description>
       </Bitfield>
-      
+
       <Bitfield Name="Reserved7" Width="1" Position="7"/>
     </TypeDefinition>
     <TypeDefinition Name="ADMUX_T" xsi:type="IntegerType" Signed="false" Size="1">
@@ -417,6 +492,11 @@
       </Bitfield>
       <Bitfield Name="REFS" Position="6" Width="2">
         <Description>Reference selection</Description>
+        <ValueSet Name="ReferenceSelection">
+          <Enum Name="ExternalAREF" Value="0"/>
+          <Enum Name="InternalVCC" Value ="1"/>
+          <Enum Name="Internal1_1" Value="3"/>
+        </ValueSet>
       </Bitfield>
     </TypeDefinition>
     <TypeDefinition Name="DIDR0_T" xsi:type="IntegerType" Signed="false" Size="1">
@@ -458,7 +538,7 @@
       <Description>Adc status register B</Description>
     </Field>
     <Field Name="Admux" FieldType="ADMUX_T">
-      
+
     </Field>
     <Field Name="Reserved" FieldType="uint8_t"/>
     <Field Name="Didr0" FieldType="DIDR0_T"></Field>
@@ -480,7 +560,7 @@
       <Description>Input capture enable</Description>
     </Bitfield>
   </TypeDefinition>
-  
+
   <MemorySection Name="IOMEM" Address="0x20" ByteOrder="LittleEndian" Chip="M328">
 
     <Symbol Name="PortB" Offset="3" Type="GPIO_T">
@@ -513,13 +593,13 @@
       <Description>Sleep mode control register</Description>
     </Symbol>
   </MemorySection>
-  
-  <MemorySection  Name="IOMEM_High" Address="0x00" ByteOrder="LittleEndian" Chip="M328">
 
+  <MemorySection  Name="IOMEM_High" Address="0x00" ByteOrder="LittleEndian" Chip="M328">
+    <Symbol Name="Prr" Offset="0x64" Type="PRR_T"/>
     <Symbol Name="Timsk0" Offset="0x6E" Type="TIMSK_T"/>
     <Symbol Name="Timsk1" Offset="0x6F" Type="TIMSK_T"/>
     <Symbol Name="Timsk2" Offset="0x70" Type="TIMSK_T"/>
-    
+
     <Symbol Name="Adc" Offset="0x78" Type="ADC_T"/>
 
     <Symbol Name="Tcnt1" Offset="0x80" Type="TCNT16_T">

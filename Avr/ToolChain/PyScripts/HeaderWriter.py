@@ -42,6 +42,7 @@ class HeaderWriter:
 
     def VisitStruct(self, typeNode):
         name = typeNode.GetName()
+        self.MakeDoxygenTypeDescription(typeNode.GetDescription())
         self._codeLines.append( "typedef struct {0}_tag".format( name ))
         self._codeLines.append( "{")
         for f in typeNode.GetStructFields():
@@ -49,13 +50,23 @@ class HeaderWriter:
         self._codeLines.append( "}} {0};".format(name))
 
     def VisitEnum(self, enumNode ):
-        name = enumNode.GetName()
-        self._codeLines.append( "typedef enum" )
-        self._codeLines.append( "{")
-        for e in enumNode.GetEnumeration():
-            self._codeLines.append("    {0}={1},".format(e[0], e[1]))
-        self._codeLines.append( "}} {0};".format(name))
-        self._codeLines.append("")
+        stereotype = enumNode.GetStereotype()
+        if not stereotype or stereotype!="IsrTable":
+            name = enumNode.GetName()
+            self.MakeDoxygenTypeDescription(enumNode.GetDescription())
+            self._codeLines.append( "typedef enum" )
+            self._codeLines.append( "{")
+            for e in enumNode.GetEnumeration():
+                self._codeLines.append("    {0}={1},".format(e[0], e[1]))
+            self._codeLines.append( "}} {0};".format(name))
+            self._codeLines.append("")
+        else:
+            self._codeLines.append("/**")
+            self._codeLines.append("* macros to define interrupt service routines")
+            self._codeLines.append("*/")
+            for e in enumNode.GetEnumeration():
+                self._codeLines.append( "#define {0}()\t ISR( __vector_{1} )".format(e[0], e[1]))
+            self._codeLines.append("")
 
 
     def VisitInteger( self, integerNode):
@@ -69,7 +80,7 @@ class HeaderWriter:
         modifier = ""
         if f.GetParentStereotype() == 'HardwarePeripheral':
             modifier = "volatile"
-        self._codeLines.append("    {0} {1} {2};".format(modifier, c_type, fieldName))
+        self._codeLines.append("    {0} {1} {2};\t{3}".format(modifier, c_type, fieldName, self.MakeDoxygenFieldBrief(f.GetDescription())))
 
     def VisitMemorySection( self, sectionNode):
         address = sectionNode.GetBaseAddress()
@@ -99,3 +110,17 @@ class HeaderWriter:
         self._codeLines.append("#define {0} {1}".format(posName, bitfieldNode.GetPosition()))
         self._codeLines.append("#define {0} {1}".format(widthName, bitfieldNode.GetWidth()))
         self._codeLines.append("")
+
+    def MakeDoxygenTypeDescription(self, text):
+        if text:
+            self._codeLines.append("")
+            self._codeLines.append("/**")
+            for comment in map(lambda x: "* {0}".format(x), text.split('\n')):
+                print (comment)
+                self._codeLines.append(comment)
+            self._codeLines.append("*/")
+
+    def MakeDoxygenFieldBrief(self, text):
+        if text:
+            return "///< {0}".format(text.replace('\n','; '))
+        return ''

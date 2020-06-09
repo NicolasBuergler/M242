@@ -127,6 +127,14 @@ class Field(ModelNode):
         if alignemetBoundary:
             self._isAligned = True
             self._alignementBoundary = int(alignemetBoundary)
+        self._description = self._node.find("e:Description", Namespace)
+
+        if self._description != None:
+            self._description = self._description.text
+
+    def GetDescription(self):
+        return self._description
+
 
     def GetParentStereotype(self):
         return self._parentStereotype
@@ -165,8 +173,15 @@ class TypeDefinition(ModelNode):
         ModelNode.__init__(self, node)
         KnownTypes[self.GetName()] = self
         self._stereotype = self._node.find("e:Stereotype", Namespace)
+        self._description = self._node.find("e:Description", Namespace)
         if self._stereotype != None:
             self._stereotype = self._stereotype.text
+        if self._description != None:
+            self._description = self._description.text
+            print( self._description)
+
+    def GetDescription(self):
+        return self._description
 
     def GetStereotype(self):
         return self._stereotype
